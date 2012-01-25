@@ -13,6 +13,7 @@ GEM
     rcov (1.0.0)
     rdoc (3.12)
       json (~> 1.4)
+    rr (1.0.4)
     rspec (2.8.0)
       rspec-core (~> 2.8.0)
       rspec-expectations (~> 2.8.0)
@@ -31,5 +32,6 @@ DEPENDENCIES
   jeweler (~> 1.8.3)
   rcov
   rdoc (~> 3.12)
+  rr (~> 1.0.4)
   rspec (~> 2.8.0)
   yard (~> 0.7)

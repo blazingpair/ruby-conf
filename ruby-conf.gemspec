@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "lib/ruby-conf.rb",
+    "ruby-conf.gemspec",
     "spec/ruby-conf_spec.rb",
     "spec/spec_helper.rb"
   ]

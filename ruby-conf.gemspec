@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
     "VERSION",
     "lib/ruby-conf.rb",
     "ruby-conf.gemspec",
-    "spec/ruby-conf_spec.rb",
+    "spec/lib/ruby-conf_spec.rb",
     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/blazingpair/ruby-conf}
@@ -50,6 +50,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rcov>, [">= 0"])
     else
       s.add_dependency(%q<rspec>, ["~> 2.8.0"])
+      s.add_dependency(%q<rr>, ["~> 1.0.4"])
       s.add_dependency(%q<yard>, ["~> 0.7"])
       s.add_dependency(%q<rdoc>, ["~> 3.12"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
@@ -58,6 +59,7 @@ Gem::Specification.new do |s|
     end
   else
     s.add_dependency(%q<rspec>, ["~> 2.8.0"])
+    s.add_dependency(%q<rr>, ["~> 1.0.4"])
     s.add_dependency(%q<yard>, ["~> 0.7"])
     s.add_dependency(%q<rdoc>, ["~> 3.12"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])

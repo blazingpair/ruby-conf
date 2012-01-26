@@ -1,6 +1,37 @@
 = ruby-conf
 
-Description goes here.
+  Simple way to do ruby config DSL
+
+== Examples
+
+  RubyConf.define :godzilla do
+    mothra 'sucks'
+    godzilla 'rocks'
+  end
+
+
+  > RubyConf.godzilla.mothra
+  => "sucks" 
+  > RubyConf.godzilla.godzilla
+  => "rocks" 
+
+
+
+  RubyConf.define "monkey" , :as => 'MyBonobo' do
+   has_legs true
+   number_arms 2
+   number_legs 2
+   name 'Nancy' , 'Drew'
+   age 34
+   number_of_bananas_eaten lambda { 
+     BanannaChomper.lookup("nancy.bananas").count
+   }
+  end
+  MyBonobo.name                     # ['Nancy' , 'Drew']
+  MyBonobo.number_of_bananas_eaten  # execute proc
+  MyBonobo.number_legs              # 2
+  ...
+
 
 == Contributing to ruby-conf
  

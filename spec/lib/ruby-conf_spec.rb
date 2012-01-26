@@ -14,8 +14,18 @@ require 'ruby-conf'
 
 describe RubyConf do
   subject { RubyConf }
-
+  
   describe ".define" do
+    context ":as" do 
+      it "creates a global Constant" do
+        subject.define "rails_database", :as => :RailsDatabase do
+          production :host => 'localhost', :password => 'cake', :username => 'eggs2legit'
+        end
+        ::RailsDatabase.production[:host].should == 'localhost'
+        ::RailsDatabase.production[:username].should_not be_nil
+        ::RailsDatabase.production[:password].should_not be_nil
+      end
+    end
     it "defines a new configuration with a given name" do
       subject.define "thing" do end
       subject.should respond_to(:thing)

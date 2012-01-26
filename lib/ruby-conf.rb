@@ -1,3 +1,6 @@
+#
+#
+# @author Hollin Wilkins & Curtis Schofield
 class RubyConf
   @@configs = {}
 
@@ -35,11 +38,30 @@ class RubyConf
       end
     end
   end
+  #  Define a configuration:
+  #
+  #  RubyConf.define "monkey" , :as => 'MyBonobo' do
+  #   has_legs true
+  #   number_arms 2
+  #   number_legs 2
+  #   name 'Nancy Drew'
+  #   age 34
+  #   number_of_bananas_eaten lambda { 
+  #     BanannaChomper.lookup("nancy.bananas").count
+  #   }
+  #  end
+  #
+  #
+  #  @param [Symbol] namespace of the config
+  #  @param [Hash] list of options. e.g. :as => ConstantName 
+  def self.define(name, options = {}, &block)
+    config = Config.new
+    @@configs[name.to_sym] = config
+    config.instance_eval &block
 
-  def self.define(name, &block)
-    @@configs[name.to_sym] = Config.new
-
-    @@configs[name.to_sym].instance_eval &block
+    if options.has_key? :as
+      Object.const_set(options[:as].to_s.to_sym, config)
+    end
   end
 
   def self.method_missing(name, *args, &block)

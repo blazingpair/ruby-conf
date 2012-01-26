@@ -26,6 +26,20 @@ describe RubyConf do
         ::RailsDatabase.production[:password].should_not be_nil
       end
     end
+    it "returns a config" do
+      config = subject.define "config" do
+        something "hi"
+      end
+      config.something.should == "hi"
+    end
+    it "can be chained" do
+      subject.define "config", :as => :MyConfig do
+        love_song (RubyConf.define "love_song" do
+          title "in me all along"
+        end)
+      end
+      MyConfig.love_song.title.should == 'in me all along'
+    end
     it "defines a new configuration with a given name" do
       subject.define "thing" do end
       subject.should respond_to(:thing)

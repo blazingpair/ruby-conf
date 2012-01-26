@@ -62,6 +62,7 @@ class RubyConf
     if options.has_key? :as
       Object.const_set(options[:as].to_s.to_sym, config)
     end
+    config
   end
 
   def self.method_missing(name, *args, &block)

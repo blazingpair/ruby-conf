@@ -16,6 +16,14 @@ describe RubyConf do
   subject { RubyConf }
   
   describe ".define" do
+    context "no arguments" do
+      it "returns anonymous config" do
+        config = subject.define do
+          equality true
+        end
+        config.equality.should be_true
+      end
+    end
     context ":as" do 
       it "creates a global Constant" do
         subject.define "rails_database", :as => :RailsDatabase do
@@ -26,11 +34,12 @@ describe RubyConf do
         ::RailsDatabase.production[:password].should_not be_nil
       end
     end
-    it "returns a config" do
-      config = subject.define "config" do
+    it "returns a named config" do
+      config = subject.define "a_name" do
         something "hi"
       end
       config.something.should == "hi"
+      subject.a_name.something.should == 'hi'
     end
     it "can be chained" do
       subject.define "config", :as => :MyConfig do

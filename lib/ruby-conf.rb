@@ -54,11 +54,11 @@ class RubyConf
   #
   #  @param [Symbol] namespace of the config
   #  @param [Hash] list of options. e.g. :as => ConstantName 
-  def self.define(name, options = {}, &block)
+  def self.define(name = nil , options = {}, &block)
     config = Config.new
-    @@configs[name.to_sym] = config
     config.instance_eval &block
 
+    @@configs[name.to_sym] = config unless name.nil?
     if options.has_key? :as
       Object.const_set(options[:as].to_s.to_sym, config)
     end

@@ -13,12 +13,28 @@ class RubyConf
       @attributes[name.to_sym]
     end
 
+    def inherit(parent)
+      @parent = parent
+    end
+
     def method_missing(name, *args, &block)
+      if block_given?
+        if args.size > 0 && args.first.is_a?(Hash) && args.first.has_key?(:inherits)
+          inherit args.first[:inherits]
+        end
+
+        if @attributes[name.to_sym].is_a?(Config)
+          @attributes[name.to_sym].instance_eval(&block)
+        else
+          @attributes[name.to_sym] = RubyConf.define(&block)
+        end
+
+        return
+      end
+
       case(args.size)
       when 0:
-        if block_given?
-          @attributes[name.to_sym] = RubyConf.define(&block)
-        elsif @attributes.has_key? name.to_sym
+        if @attributes.has_key? name.to_sym
           value = @attributes[name.to_sym]
 
           if value.is_a?(Proc)
@@ -39,6 +55,8 @@ class RubyConf
     def respond_to?(name)
       if @attributes.has_key? name.to_sym
         true
+      elsif @parent
+        @parent.respond_to?(name)
       else
         super
       end

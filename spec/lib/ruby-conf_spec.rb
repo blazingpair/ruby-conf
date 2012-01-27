@@ -14,7 +14,7 @@ require 'ruby-conf'
 
 describe RubyConf do
   subject { RubyConf }
-  
+   
   describe ".define" do
     context "no arguments" do
       it "returns anonymous config" do
@@ -22,6 +22,39 @@ describe RubyConf do
           equality true
         end
         config.equality.should be_true
+      end
+    end
+    context ":inherit" do
+      let(:inherited_config) do 
+        RubyConf.define do
+          basic do
+            thing do
+              origin "swamp"
+            end
+          end
+
+          building :inherits => basic do
+            yoyo "fireball"
+          end
+
+          laboritory :inherits => basic do
+            thing do
+              strong true
+            end 
+          end
+
+          city :inherits => basic do
+            thing do
+              origin "sewer"
+            end
+          end
+        end
+      end
+      it "pre-loads a config with a existing config" do
+        inherited_config.laboritory.thing.origin.should == inherited_config.basic.thing.origin
+      end
+      it "can be re-declared" do
+        inherited_config.city.thing.origin.should == "sewer"
       end
     end
     context ":as" do 
@@ -33,6 +66,19 @@ describe RubyConf do
         ::RailsDatabase.production[:username].should_not be_nil
         ::RailsDatabase.production[:password].should_not be_nil
       end
+    end
+    it "can reopen configs" do
+      config = subject.define do
+        godzilla do
+          spines false
+          awesome true
+        end
+      end
+      config.godzilla do
+        spines true
+      end
+      config.godzilla.spines.should == true
+      config.godzilla.awesome.should == true
     end
     it "returns a named config" do
       config = subject.define "a_name" do

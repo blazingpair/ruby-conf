@@ -12,7 +12,9 @@ class RubyConf
     def method_missing(name, *args, &block)
       case(args.size)
       when 0:
-        if @attributes.has_key? name.to_sym
+        if block_given?
+          @attributes[name.to_sym] = RubyConf.define(&block)
+        elsif @attributes.has_key? name.to_sym
           value = @attributes[name.to_sym]
 
           if value.is_a?(Proc)

@@ -49,6 +49,21 @@ describe RubyConf do
       end
       MyConfig.love_song.title.should == 'in me all along'
     end
+    it "can be chained using do blocks instead of RubyConf.define" do
+      subject.define "config", :as => :MyConfig do
+        turtles do
+          teenage true
+          mutant true
+          ninja true
+
+          raphael do
+            mask "red"
+          end
+        end
+      end
+      MyConfig.turtles.mutant.should == true
+      MyConfig.turtles.raphael.mask.should == "red"
+    end
     it "defines a new configuration with a given name" do
       subject.define "thing" do end
       subject.should respond_to(:thing)

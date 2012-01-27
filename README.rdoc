@@ -23,6 +23,9 @@
    number_legs 2
    name 'Nancy' , 'Drew'
    age 34
+
+   # make sure to pass a lambda and not a do block
+   # do blocks chain configurations (see below)
    number_of_bananas_eaten lambda { 
      BanannaChomper.lookup("nancy.bananas").count
    }
@@ -32,6 +35,25 @@
   MyBonobo.number_legs              # 2
   ...
 
+=== Anonymous configurations
+  config = RubyConf.define do
+    favorite_color 'blue'
+  end
+  config.favorite_color             # "blue"
+
+=== Configuration chaining
+  RubyConf.define "rails", :as => :RailsConfig do
+    production do
+      database "rails_prod"
+      host "localhost"
+    end
+    staging do
+      database "rails_staging"
+      host "localhost"
+    end
+  end
+  RailsConfig.production.database  # "rails_prod"
+  RailsConfig.staging.database     # "rails_staging"
 
 == Contributing to ruby-conf
  

@@ -64,6 +64,22 @@ describe RubyConf do
       MyConfig.turtles.mutant.should == true
       MyConfig.turtles.raphael.mask.should == "red"
     end
+    describe "RubyConf" do
+      it "can access configs using square brackets" do
+        subject.define "config" do
+          shredder "villain"
+        end
+        subject[:config].shredder.should == "villain"
+      end
+    end
+    describe "RubyConf::Config" do
+      it "can access attributes using square brackets" do
+        subject.define "config" do
+          splinter "the man"
+        end
+        subject[:config][:splinter].should == "the man"
+      end
+    end
     it "defines a new configuration with a given name" do
       subject.define "thing" do end
       subject.should respond_to(:thing)

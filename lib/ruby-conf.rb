@@ -9,6 +9,10 @@ class RubyConf
       @attributes = {}
     end
 
+    def [](name)
+      @attributes[name.to_sym]
+    end
+
     def method_missing(name, *args, &block)
       case(args.size)
       when 0:
@@ -65,6 +69,10 @@ class RubyConf
       Object.const_set(options[:as].to_s.to_sym, config)
     end
     config
+  end
+
+  def self.[](name)
+    @@configs[name.to_sym]
   end
 
   def self.method_missing(name, *args, &block)

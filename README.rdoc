@@ -33,6 +33,7 @@
   MyBonobo.name                     # ['Nancy' , 'Drew']
   MyBonobo.number_of_bananas_eaten  # execute proc
   MyBonobo.number_legs              # 2
+  RubyConf[:monkey][:age]           # 34
   ...
 
 === Anonymous configurations

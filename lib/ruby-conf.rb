@@ -25,12 +25,14 @@ class RubyConf
       @attributes[name.to_sym] = value
     end
 
-    def inherit(parent)
-      @attributes.merge! parent.attributes.clone
+    def inherit(name, parent)
+      self[name] = Config.new
+      self[name].attributes.merge! parent.attributes.clone
     end
+
     def method_missing(name, *args, &block)
       if block_given?
-        _inherit(args)
+        _inherit(name, args)
         _set_config_with_block(name,block)
         return
       end
@@ -83,9 +85,9 @@ class RubyConf
       end
     end
 
-    def _inherit(args)
+    def _inherit(name, args)
       if args.size > 0 && args.first.is_a?(Hash) && args.first.has_key?(:inherits)
-        inherit args.first[:inherits]
+        inherit name, args.first[:inherits]
       end
     end
   end

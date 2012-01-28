@@ -39,10 +39,18 @@ describe RubyConf do
             end
           end
 
+          city :inherits => basic do
+            thing do
+              origin "ocean"
+            end
+          end
         end
       end
-      xit "pre-loads a config with a existing config" do
+      it "pre-loads a config with a existing config" do
         inherited_config.laboritory.thing.origin.should == inherited_config.basic.thing.origin
+      end
+      it "does not overwrite values" do
+        inherited_config.city.thing.origin.should == "ocean"
       end
     end
     context ":as" do 

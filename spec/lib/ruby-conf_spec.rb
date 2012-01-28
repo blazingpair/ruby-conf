@@ -44,6 +44,7 @@ describe RubyConf do
               origin "ocean"
             end
           end
+
         end
       end
       it "pre-loads a config with a existing config" do

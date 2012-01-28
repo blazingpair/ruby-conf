@@ -30,6 +30,10 @@ class RubyConf
       self[name].attributes.merge! parent.attributes.clone
     end
 
+    def []=(name,value)
+      @attributes[name.to_sym] = value
+    end
+
     def method_missing(name, *args, &block)
       if block_given?
         _inherit(name, args)

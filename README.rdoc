@@ -56,6 +56,36 @@
   RailsConfig.production.database  # "rails_prod"
   RailsConfig.staging.database     # "rails_staging"
 
+=== Inheritance
+  RubyConf.define "rails", :as => :RailsConfig do
+    defaults do
+      host "localhost"
+      username "godzilla"
+      password "mothra"
+    end
+
+    development :inherits => defaults do
+      database "development"
+    end
+
+    test :inherits => defaults do
+      database "test"
+      username "biollante"
+      password "destroygodzilla"
+    end
+
+    production :inherits => defaults do
+      database "production"
+      host "killmothra.net"
+      password "ilovemothra"
+    end
+  end
+  RailsConfig.development.database      # "development"
+  RailsConfig.development.username      # "godzilla
+  RailsConfig.development.password      # "mothra"
+  RailsConfig.production.username       # "godzilla"
+  RailsConfig.production.password       # "ilovemothra"
+
 == Contributing to ruby-conf
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.

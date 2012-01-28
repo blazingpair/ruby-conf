@@ -5,51 +5,39 @@ class RubyConf
   @@configs = {}
 
   class Config
+    attr_reader :attributes
+
     def initialize
       @attributes = {}
     end
 
     def [](name)
-      @attributes[name.to_sym]
+      value = @attributes[name.to_sym]
+
+      if value.is_a?(Proc)
+        value.call
+      else
+        value
+      end
+    end
+
+    def []=(name,value)
+      @attributes[name.to_sym] = value
     end
 
     def inherit(parent)
-      @parent = parent
+      @attributes.merge! parent.attributes.clone
     end
-
     def method_missing(name, *args, &block)
       if block_given?
-        if args.size > 0 && args.first.is_a?(Hash) && args.first.has_key?(:inherits)
-          inherit args.first[:inherits]
-        end
-
-        if @attributes[name.to_sym].is_a?(Config)
-          @attributes[name.to_sym].instance_eval(&block)
-        else
-          @attributes[name.to_sym] = RubyConf.define(&block)
-        end
-
+        _inherit(args)
+        _set_config_with_block(name,block)
         return
       end
 
-      case(args.size)
-      when 0:
-        if @attributes.has_key? name.to_sym
-          value = @attributes[name.to_sym]
+      super if 0 == args.size && !@attributes.has_key?(name.to_sym)
 
-          if value.is_a?(Proc)
-            value.call
-          else
-            value
-          end
-        else
-          super
-        end
-      when 1:
-        @attributes[name.to_sym] = args.first
-      else
-        @attributes[name.to_sym] = args
-      end
+      _set_or_get_attribute(name, args)
     end
 
     def respond_to?(name)
@@ -59,6 +47,45 @@ class RubyConf
         @parent.respond_to?(name)
       else
         super
+      end
+    end
+
+    private
+
+    def _set_or_get_attribute(name, args)
+      case(args.size)
+      when 0:
+        # config.something 
+        # => 'value' 
+        self[name]
+      when 1:
+        # config.something "value"
+        self[name] = args.first
+      else
+        # config.something "value", "value2"
+        self[name] = args
+      end
+    end
+
+    def _update_config_with_block(name,block)
+      self[name].instance_eval(&block)
+    end
+
+    def _new_config_with_block(name, block)
+      self[name] = RubyConf.define(&block)
+    end
+
+    def _set_config_with_block(name, block)
+      if self[name].is_a?(Config)
+        _update_config_with_block(name,block)
+      else
+        _new_config_with_block(name,block)
+      end
+    end
+
+    def _inherit(args)
+      if args.size > 0 && args.first.is_a?(Hash) && args.first.has_key?(:inherits)
+        inherit args.first[:inherits]
       end
     end
   end

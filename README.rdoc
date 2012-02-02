@@ -16,7 +16,6 @@
   => "rocks" 
 
 
-
   RubyConf.define "monkey" , :as => 'MyBonobo' do
    has_legs true
    number_arms 2
@@ -98,6 +97,6 @@
 
 == Copyright
 
-Copyright (c) 2012 Curtis Schofield & Hollin Wilkins. See LICENSE.txt for
+Copyright (c) 2012 Blazing Cloud inc. See LICENSE.txt for
 further details.
 

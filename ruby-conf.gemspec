@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.version = "1.4.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Curtis Schofield", "Hollin Wilkins"]
-  s.date = %q{2012-01-27}
+  s.authors = ["Curtis Schofield & Hollin Wilkins"]
+  s.date = %q{2012-02-01}
   s.description = %q{rubyconf is a ruby configuration dsl that aims to make it simple to write and read configurations for ruby apps without a yaml or xml file}
   s.email = %q{blazingpair@blazingcloud.net}
   s.extra_rdoc_files = [

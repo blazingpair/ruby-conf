@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ruby-conf}
-  s.version = "1.4.3"
+  s.version = "1.4.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Curtis Schofield & Hollin Wilkins"]
-  s.date = %q{2012-02-01}
+  s.date = %q{2012-02-06}
   s.description = %q{rubyconf is a ruby configuration dsl that aims to make it simple to write and read configurations for ruby apps without a yaml or xml file}
   s.email = %q{blazingpair@blazingcloud.net}
   s.extra_rdoc_files = [
@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/blazingpair/ruby-conf}
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.4.2}
+  s.rubygems_version = %q{1.5.3}
   s.summary = %q{dsl (domain specific language) for config files in ruby}
 
   if s.respond_to? :specification_version then

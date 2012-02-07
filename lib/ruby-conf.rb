@@ -60,11 +60,11 @@ class RubyConf
 
     def _set_or_get_attribute(name, args)
       case(args.size)
-      when 0:
+      when 0
         # config.something 
         # => 'value' 
         self[name]
-      when 1:
+      when 1
         # config.something "value"
         self[name] = args.first
       else

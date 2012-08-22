@@ -2,6 +2,13 @@
 
   Simple way to do ruby config DSL
 
+== Install 
+  gem install ruby-conf
+
+== Gemfile
+
+  gem "ruby-conf"
+
 == Examples
 
   RubyConf.define :godzilla do

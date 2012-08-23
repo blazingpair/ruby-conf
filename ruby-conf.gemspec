@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{ruby-conf}
-  s.version = "1.4.4"
+  s.name = "ruby-conf"
+  s.version = "1.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Curtis Schofield & Hollin Wilkins"]
-  s.date = %q{2012-02-06}
-  s.description = %q{rubyconf is a ruby configuration dsl that aims to make it simple to write and read configurations for ruby apps without a yaml or xml file}
-  s.email = %q{blazingpair@blazingcloud.net}
+  s.authors = ["Curtis Schofield & Hollin Wilkins & Mason"]
+  s.date = "2012-08-23"
+  s.description = "rubyconf is a ruby configuration dsl that aims to make it simple to write and read configurations for ruby apps without a yaml or xml file"
+  s.email = "blazingpair@blazingcloud.net"
   s.extra_rdoc_files = [
     "LICENSE.txt",
     "README.rdoc"
@@ -31,11 +31,11 @@ Gem::Specification.new do |s|
     "spec/lib/ruby-conf_spec.rb",
     "spec/spec_helper.rb"
   ]
-  s.homepage = %q{http://github.com/blazingpair/ruby-conf}
+  s.homepage = "http://github.com/blazingpair/ruby-conf"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.5.3}
-  s.summary = %q{dsl (domain specific language) for config files in ruby}
+  s.rubygems_version = "1.8.24"
+  s.summary = "dsl (domain specific language) for config files in ruby"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

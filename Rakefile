@@ -20,7 +20,7 @@ Jeweler::Tasks.new do |gem|
   gem.summary = %Q{dsl (domain specific language) for config files in ruby}
   gem.description = %Q{rubyconf is a ruby configuration dsl that aims to make it simple to write and read configurations for ruby apps without a yaml or xml file}
   gem.email = "blazingpair@blazingcloud.net"
-  gem.authors = ["Curtis Schofield & Hollin Wilkins"]
+  gem.authors = ["Curtis Schofield & Hollin Wilkins & Mason"]
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new

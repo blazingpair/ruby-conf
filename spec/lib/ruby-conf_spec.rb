@@ -15,6 +15,27 @@ require 'ruby-conf'
 describe RubyConf do
   subject { RubyConf }
 
+  describe "lambda arguments" do
+    it "accepts arguments for lambdas" do
+      RubyConf.define("lambda args", :as => :Hannibal) do
+        silence_of_the lambda { |clarise, fava, chianti|
+          "Hello #{clarise}.  I'd like to eat your liver with #{fava} beans, and a nice #{chianti}."
+        }
+      end
+
+      Hannibal.silence_of_the('Cow', 'refried', 'glass of milk').should == "Hello Cow.  I'd like to eat your liver with refried beans, and a nice glass of milk."
+
+      RubyConf.define("single lambda arg", :as => :Argue) do
+        you_are_a lambda { |meanie|
+          "Why are you such a jerk, #{meanie}"
+        }
+      end
+
+      Argue.you_are_a('My Love?').should == "Why are you such a jerk, My Love?"
+    end
+
+  end
+
   describe ".to_s" do
     it "prints out the config in a human readable way" do
       RubyConf.define("some shapes", :as => :Shapes) {
@@ -27,6 +48,7 @@ describe RubyConf do
         dafuq? { holy fuck this is some god damn evil fucking black sorcery!; how the hell did he make this happen?; mason is some kind of sorcerer; this is freaking me out man; srsly dude }
       }
 
+      Shapes.inspect.should == '[some shapes] circle: { color: "blue like the color of the sea before a storm", fits: { pegs: { round: "yes", square: "no" } }, position: { px: 10, py: 20 }, rotation: "who could possibly tell?", sides: 0, size: { height: 200, width: 50 } }, dafuq?: { holy: "fuck this is some god damn evil fucking black sorcery!", how: "the hell did he make this happen?", mason: "is some kind of sorcerer", srsly: "dude", this: "is freaking me out man" }, defaults: { position: { px: 10, py: 20 }, rotation: "90 degrees", size: { height: 200, width: 50 } }, other: { color: "blue like the color of the sea before a storm", sides: 4 }, polygon: { details: { actual_sides: 100, discussion: { seems?: "like a lot of damn sides" }, named: "somename" }, sides: "many" }, square: { named: :rectangle, position: { px: 10, py: 20 }, rotation: "90 degrees", size: { height: 200, width: 50 } }, triangle: { named: :rectangle, position: { px: 10, py: 20 }, rotation: "180 degrees", size: { height: 200, width: 50 } }'
       Shapes.to_s.should == <<-TEXT
 [some shapes]
 
@@ -94,7 +116,6 @@ triangle:
     width: 50
 
 TEXT
-      Shapes.inspect.should == '[some shapes] circle: { color: "blue like the color of the sea before a storm", fits: { pegs: { round: "yes", square: "no" } }, position: { px: 10, py: 20 }, rotation: "who could possibly tell?", sides: 0, size: { height: 200, width: 50 } }, dafuq?: { holy: "fuck this is some god damn evil fucking black sorcery!", how: "the hell did he make this happen?", mason: "is some kind of sorcerer", srsly: "dude", this: "is freaking me out man" }, defaults: { position: { px: 10, py: 20 }, rotation: "90 degrees", size: { height: 200, width: 50 } }, other: { color: "blue like the color of the sea before a storm", sides: 4 }, polygon: { details: { actual_sides: 100, discussion: { seems?: "like a lot of damn sides" }, named: "somename" }, sides: "many" }, square: { named: :rectangle, position: { px: 10, py: 20 }, rotation: "90 degrees", size: { height: 200, width: 50 } }, triangle: { named: :rectangle, position: { px: 10, py: 20 }, rotation: "180 degrees", size: { height: 200, width: 50 } }'
     end
 
   end

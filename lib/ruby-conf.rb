@@ -26,11 +26,11 @@ class RubyConf
       end
     end
 
-    def [](name)
+    def [](name, args = nil)
       value = @attributes[name.to_sym]
 
       if value.is_a?(Proc)
-        value.call
+        value.call(*args)
       else
         value
       end
@@ -144,10 +144,18 @@ class RubyConf
         self[name]
       when 1
         # config.something "value"
-        self[name] = args.first
+        if @locked && attributes[name.to_sym].is_a?(Proc)
+          self[name, args.first]
+        else
+          self[name] = args.first
+        end
       else
         # config.something "value", "value2"
-        self[name] = args
+        if @locked && attributes[name.to_sym].is_a?(Proc)
+          self[name, args]
+        else
+          self[name] = args
+        end
       end
     end
 

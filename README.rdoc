@@ -92,6 +92,9 @@
   RailsConfig.production.username       # "godzilla"
   RailsConfig.production.password       # "ilovemothra"
 
+=== Using ruby-conf with Rails
+  Ruby-conf can be used with Rails.  Restart the server after setting up config values.
+
 == Contributing to ruby-conf
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet.

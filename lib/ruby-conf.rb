@@ -42,6 +42,10 @@ class RubyConf < Object
       end
     end
 
+    def to_a
+      [self]
+    end
+
     def []=(name, value)
       @__rc_attributes[name.to_sym] = value
     end

@@ -232,12 +232,12 @@ TEXT
     end
 
     it "can be chained" do
-      subject.define "config", :as => :MyConfig do
+      subject.define "config", :as => :ChainedConfig do
         love_song (RubyConf.define "love_song" do
           title "in me all along"
         end)
       end
-      MyConfig.love_song.title.should == 'in me all along'
+      ChainedConfig.love_song.title.should == 'in me all along'
     end
 
     it "can be chained using do blocks instead of RubyConf.define" do

@@ -49,6 +49,15 @@ describe RubyConf do
       RootTest.outer.middle.__rc_root == RootTest
       RootTest.outer.middle.inner.__rc_root.should == RootTest
 
+      RootTest.outer.detach
+      RootTest.outer.__rc_root.should == RootTest.outer
+      RootTest.outer.middle.__rc_root == RootTest.outer
+      RootTest.outer.middle.inner.__rc_root.should == RootTest.outer
+
+      RootTest.outer.middle.detach
+      RootTest.outer.middle.__rc_root == RootTest.outer.middle
+      RootTest.outer.middle.inner.__rc_root.should == RootTest.outer.middle
+
     end
 
     it "sets self properly in nested procs" do

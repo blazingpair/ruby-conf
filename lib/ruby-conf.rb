@@ -13,6 +13,7 @@ class RubyConf < Object
     attr_reader :__rc_attributes, :__rc_parent, :__rc_name, :__rc_chains, :__rc_locked
 
     def __rc_root() __rc_parent ? __rc_parent.__rc_root : self end
+    def detach() @__rc_parent = nil; self end
 
     def initialize(name = nil, parent = nil, &block)
       @__rc_locked, @__rc_attributes, @__rc_chains, @__rc_parent = false, {}, [], parent
@@ -48,12 +49,12 @@ class RubyConf < Object
       @__rc_attributes[name.to_sym] = value
     end
 
-    def __rc_set_default(conf, key, value)
+    def __rc_set_defaults(conf, key, value)
       if conf.__rc_attributes.key?(key)
         if value.is_a?(Config)
           sub = conf.__rc_attributes[key]
           value.__rc_attributes.each do |k, v|
-            __rc_set_default(sub, k, v)
+            __rc_set_defaults(sub, k, v)
           end
         end
       else
@@ -70,7 +71,7 @@ class RubyConf < Object
           self[name] = [*options[:inherits]].inject(Config.new(name, self, &block)) do |conf, inherited|
             inherited = self[inherited.to_sym] unless inherited.is_a?(Config)
             __rc_copy(inherited.__rc_attributes).each do |key, value|
-              __rc_set_default(conf, key, value)
+              __rc_set_defaults(conf, key, value)
             end
             conf
           end
@@ -105,9 +106,7 @@ class RubyConf < Object
           args = args.size == 1 ? args.first : args
           (@__rc_locked && __rc_attributes[name.to_sym].is_a?(Proc)) ? self[name, args] : self[name] = args
         end
-
       end
-
     end
 
     def respond_to?(name)

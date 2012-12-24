@@ -21,6 +21,17 @@ describe RubyConf do
       end
 
       Argue.you_are_a('My Love?').should == "Why are you such a jerk, My Love?"
+
+      RubyConf.define(:LambdaToString) do
+        no_args        ->                 { "none" }
+        one_arg        ->(arg)            { "one|#{arg.inspect}" }
+        var_args       ->(*args)          { "var|#{args.inspect}" }
+        multi_args     ->(one,two)        { "multi|#{one.inspect}|#{two.inspect}" }
+        multi_var_args ->(one,*two,three) { "multivar|#{one.inspect}|#{two.inspect}|#{three.inspect}" }
+
+      end
+
+      LambdaToString.to_s.should == "[LambdaToString]\n\nmulti_args: multi|nil|nil\n\nmulti_var_args: multivar|nil|[nil]|nil\n\nno_args: none\n\none_arg: one|nil\n\nvar_args: var|[nil]\n\n"
     end
   end
 

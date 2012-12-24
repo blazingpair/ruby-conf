@@ -6,7 +6,7 @@ module Magic
   def __rc_gather() "#{to_s}#{__rc_chain.nil? ? "" : " #{__rc_chain.__rc_gather}"}" end
 end
 
-class RubyConf < Object
+class RubyConf < BasicObject
   @@__rc_configs = {}
 
   class Config
@@ -28,9 +28,14 @@ class RubyConf < Object
       self
     end
 
-    def [](name, args = nil)
+    def [](name, args = [])
       value = @__rc_attributes[name.to_sym]
-      value.is_a?(Proc) ? __rc_root.instance_exec(*args, &value) : value
+      if value.is_a?(Proc)
+        args += [nil] * (value.arity.abs - args.size) if value.arity.abs > args.size
+        __rc_root.instance_exec(*args, &value)
+      else
+        value
+      end
     end
 
     def __rc_copy(o)
@@ -140,7 +145,7 @@ class RubyConf < Object
     const = options.fetch(:as, name)
     if const && const.to_s[/^[A-Z]/]
       const = const.to_sym
-      Object.const_set(const, config) if !Object.const_defined?(const) || Object.const_get(const).is_a?(Config)
+      ::Object.const_set(const, config) if !::Object.const_defined?(const) || ::Object.const_get(const).is_a?(Config)
     end
     config
   end

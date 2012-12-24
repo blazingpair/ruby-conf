@@ -67,8 +67,10 @@ class RubyConf < BasicObject
       end
     end
 
-    def method_missing(name, *args, &block)
+    def method_missing(method_name, *args, &block)
+      name, modifier = method_name.to_s.match(/^(?<name>.*?)(?<modifier>[?!])?$/).captures
       name = name.to_sym
+
       options = args.last.is_a?(Hash) ? args.last : {}
 
       if block_given?
@@ -92,7 +94,16 @@ class RubyConf < BasicObject
 
       else
 
-        super if @__rc_locked && args.size == 0 && !@__rc_attributes.key?(name)
+        if @__rc_locked && args.size == 0 && !@__rc_attributes.key?(name)
+          return case modifier
+            when '!'
+              super
+            when '?'
+              false
+            else
+              nil
+          end
+        end
 
         if !@__rc_attributes.key?(name) && (args.size == 0 || args.first.is_a?(Magic))
           str = name.to_s
@@ -106,7 +117,7 @@ class RubyConf < BasicObject
         end
 
         if args.empty?
-          self[name]
+          modifier == '?' ? !!self[name] : self[name]
         else
           args = args.size == 1 ? args.first : args
           (@__rc_locked && __rc_attributes[name.to_sym].is_a?(Proc)) ? self[name, *args] : self[name] = args

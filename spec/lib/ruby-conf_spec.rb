@@ -106,7 +106,7 @@ describe RubyConf do
         dafuq? { holy fuck this is some god damn evil fucking black sorcery!; how the hell did he make this happen?; mason is some kind of sorcerer; this is freaking me out man; srsly dude }
       }
 
-      Shapes.inspect.should == '[some shapes] circle: { color: "blue like the color of the sea before a storm", fits: { pegs: { round: "yes", square: "no" } }, position: { px: 10, py: 20 }, rotation: "who could possibly tell?", sides: 0, size: { height: 200, width: 100 } }, dafuq?: { holy: "fuck this is some god damn evil fucking black sorcery!", how: "the hell did he make this happen?", mason: "is some kind of sorcerer", srsly: "dude", this: "is freaking me out man" }, defaults: { position: { px: 10, py: 20 }, rotation: "90 degrees", size: { height: 200, width: 100 } }, other: { color: "blue like the color of the sea before a storm", sides: 4 }, polygon: { details: { actual_sides: 100, discussion: { seems?: "like a lot of damn sides" }, named: "somename" }, sides: "many" }, square: { named: :rectangle, position: { px: 10, py: 20 }, rotation: "90 degrees", size: { height: 200, width: 50 } }, triangle: { named: :rectangle, position: { px: 10, py: 20 }, rotation: "180 degrees", size: { height: 200, width: 5 } }'
+      Shapes.inspect.should == '[some shapes] circle: { color: "blue like the color of the sea before a storm", fits: { pegs: { round: "yes", square: "no" } }, position: { px: 10, py: 20 }, rotation: "who could possibly tell?", sides: 0, size: { height: 200, width: 100 } }, dafuq: { holy: "fuck this is some god damn evil fucking black sorcery", how: "the hell did he make this happen", mason: "is some kind of sorcerer", srsly: "dude", this: "is freaking me out man" }, defaults: { position: { px: 10, py: 20 }, rotation: "90 degrees", size: { height: 200, width: 100 } }, other: { color: "blue like the color of the sea before a storm", sides: 4 }, polygon: { details: { actual_sides: 100, discussion: { seems: "like a lot of damn sides" }, named: "somename" }, sides: "many" }, square: { named: :rectangle, position: { px: 10, py: 20 }, rotation: "90 degrees", size: { height: 200, width: 50 } }, triangle: { named: :rectangle, position: { px: 10, py: 20 }, rotation: "180 degrees", size: { height: 200, width: 5 } }'
       Shapes.to_s.should == <<-TEXT
 [some shapes]
 
@@ -125,9 +125,9 @@ circle:
     height: 200
     width: 100
 
-dafuq?:
-  holy: fuck this is some god damn evil fucking black sorcery!
-  how: the hell did he make this happen?
+dafuq:
+  holy: fuck this is some god damn evil fucking black sorcery
+  how: the hell did he make this happen
   mason: is some kind of sorcerer
   srsly: dude
   this: is freaking me out man
@@ -149,7 +149,7 @@ polygon:
   details:
     actual_sides: 100
     discussion:
-      seems?: like a lot of damn sides
+      seems: like a lot of damn sides
     named: somename
   sides: many
 
@@ -346,11 +346,17 @@ TEXT
       it "responds to skim_milk" do
         subject.cake.should respond_to(:skim_milk)
       end
-      it "our cake has no bees and raises NameError" do
+      it "can indicate the presence of an attribute when ending in ? and raises error for !" do
+        subject.cake.bees.should == nil
+        subject.cake.flour?.should be_true
+        subject.cake.bees?.should be_false
+
         lambda do
-          subject.cake.bees
+          subject.cake.bees!
         end.should raise_error NameError
+
       end
+
     end
   end
 end

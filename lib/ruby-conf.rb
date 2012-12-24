@@ -28,7 +28,7 @@ class RubyConf < BasicObject
       self
     end
 
-    def [](name, args = [])
+    def [](name, *args)
       value = @__rc_attributes[name.to_sym]
       if value.is_a?(Proc)
         args += [nil] * (value.arity.abs - args.size) if value.arity.abs > args.size
@@ -109,7 +109,7 @@ class RubyConf < BasicObject
           self[name]
         else
           args = args.size == 1 ? args.first : args
-          (@__rc_locked && __rc_attributes[name.to_sym].is_a?(Proc)) ? self[name, args] : self[name] = args
+          (@__rc_locked && __rc_attributes[name.to_sym].is_a?(Proc)) ? self[name, *args] : self[name] = args
         end
       end
     end

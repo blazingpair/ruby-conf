@@ -378,18 +378,38 @@ TEXT
       module ::Rails
         def self.env() "foo" end
       end
-
       ::Object.const_defined?(:Rails).should be_true
 
       $RUBY_CONF.should be_nil
-
       RubyConf.define do
         foo { ident "correct" }
         bar { ident "wrong" }
       end
-
-      $RUBY_CONF.should_not be_nil
       $RUBY_CONF.ident.should == "correct"
+
+      RubyConf.clear
+      $RUBY_CONF.should be_nil
+      RubyConf.define do
+        foo_conf { ident "correct" }
+        bar_conf { ident "wrong" }
+      end
+      $RUBY_CONF.ident.should == "correct"
+
+      RubyConf.clear
+      $RUBY_CONF.should be_nil
+      RubyConf.define do
+        foo_config { ident "correct" }
+        bar_config { ident "wrong" }
+      end
+      $RUBY_CONF.ident.should == "correct"
+
+      RubyConf.clear
+      $RUBY_CONF.should be_nil
+      RubyConf.define do
+        ident "correct"
+      end
+      $RUBY_CONF.ident.should == "correct"
+
     end
   end
 end

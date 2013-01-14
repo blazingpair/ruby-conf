@@ -164,7 +164,8 @@ class RubyConf < BasicObject
 
     if $RUBY_CONF.nil? && (name.nil? || name.to_s =~ /^(?:Rails)?Conf/)
       $RUBY_CONF = if ::Object.const_defined?(:Rails)
-        config[:"#{::Rails.env}", :"#{::Rails.env}_conf", :"#{::Rails.env}_config"].detach
+        cfg = config[:"#{::Rails.env}"] || config[:"#{::Rails.env}_conf"] || config[:"#{::Rails.env}_config"]
+        cfg && cfg.detach || config
       else
         config
       end

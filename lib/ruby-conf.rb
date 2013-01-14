@@ -17,10 +17,14 @@ module RubyConf
       def __rc_set_conf(conf = nil) @@conf, @@path, @@mtime, @@md5 = conf, nil, nil, nil end
       def __rc_load(path)
         __rc_set_conf
-        @@path, @@mtime, @@md5 = path, File.mtime(path).to_i, Digest::MD5.hexdigest(File.read(path)) if load(path) && @@conf
+        if load(path) && @@conf
+          @@path, @@mtime, @@md5 = path, File.mtime(path).to_i, Digest::MD5.hexdigest(File.read(path))
+          puts "[ruby-conf] Auto-Loaded config at path: #{path}"
+        end
       end
       def method_missing(name, *args, &block)
         if @@mtime && @@mtime != File.mtime(@@path).to_i && @@md5 != Digest::MD5.hexdigest(File.read(@@path))
+          puts "[ruby-conf] Detected change in config file, reloading..."
           __rc_load(@@path)
         end
 

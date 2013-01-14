@@ -2,6 +2,11 @@ require 'spec_helper'
 require 'ruby-conf'
 
 describe RubyConf do
+
+  before do
+    RubyConf.clear
+  end
+
   subject { RubyConf }
 
   describe "lambda arguments" do
@@ -28,7 +33,6 @@ describe RubyConf do
         var_args       ->(*args)          { "var|#{args.inspect}" }
         multi_args     ->(one,two)        { "multi|#{one.inspect}|#{two.inspect}" }
         multi_var_args ->(one,*two,three) { "multivar|#{one.inspect}|#{two.inspect}|#{three.inspect}" }
-
       end
 
       LambdaToString.to_s.should == "[LambdaToString]\n\nmulti_args: multi|nil|nil\n\nmulti_var_args: multivar|nil|[nil]|nil\n\nno_args: none\n\none_arg: one|nil\n\nvar_args: var|[nil]\n\n"
@@ -356,7 +360,36 @@ TEXT
         end.should raise_error NameError
 
       end
+    end
+  end
 
+  describe "Automatically sets the RAILS_CONF variable" do
+
+    it "sets the first unnamed config as default" do
+      $RUBY_CONF.should be_nil
+      first = RubyConf.define { ident "first" }
+      $RUBY_CONF.should_not be_nil
+      second = RubyConf.define { ident "second" }
+      $RUBY_CONF.should == first
+      $RUBY_CONF.ident.should == "first"
+    end
+
+    it "sets the proper config based on Rails environment and detaches, if it exists" do
+      module ::Rails
+        def self.env() "foo" end
+      end
+
+      ::Object.const_defined?(:Rails).should be_true
+
+      $RUBY_CONF.should be_nil
+
+      RubyConf.define do
+        foo { ident "correct" }
+        bar { ident "wrong" }
+      end
+
+      $RUBY_CONF.should_not be_nil
+      $RUBY_CONF.ident.should == "correct"
     end
   end
 end

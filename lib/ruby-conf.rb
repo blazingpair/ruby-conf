@@ -1,6 +1,9 @@
 #
 #
 # @author Hollin Wilkins & Curtis Schofield & Mason Bo-bay-son
+
+$RUBY_CONF = nil
+
 module Magic
   attr_accessor :__rc_chain
   def __rc_gather() "#{to_s}#{__rc_chain.nil? ? "" : " #{__rc_chain.__rc_gather}"}" end
@@ -131,7 +134,7 @@ class RubyConf < BasicObject
 
     def __rc_build_string(depth = 0)
       str = ""
-      str += "[#@__rc_name]\n" unless @__rc_parent
+      str += "[#{@__rc_name || "CONFIG"}]\n" unless @__rc_parent
       str += "\n"
       @__rc_attributes.keys.map{|k| k.to_s }.sort.each do |key|
         value = self[key]
@@ -145,7 +148,7 @@ class RubyConf < BasicObject
     def to_s() __rc_build_string end
     def to_str() to_s end
 
-    def __rc_build_inspect() "#{"[#@__rc_name] " unless @__rc_parent}#{@__rc_attributes.keys.map {|k| k.to_s }.sort.map { |key| "#{key}: #{self[key].is_a?(Config) ? "{ #{self[key].__rc_build_inspect} }" : self[key].inspect}" }.join(", ")}" end
+    def __rc_build_inspect() "#{"[#{@__rc_name || "CONFIG"}] " unless @__rc_parent}#{@__rc_attributes.keys.map {|k| k.to_s }.sort.map { |key| "#{key}: #{self[key].is_a?(Config) ? "{ #{self[key].__rc_build_inspect} }" : self[key].inspect}" }.join(", ")}" end
     def inspect() __rc_build_inspect end
   end
 
@@ -158,6 +161,15 @@ class RubyConf < BasicObject
       const = const.to_sym
       ::Object.const_set(const, config) if !::Object.const_defined?(const) || ::Object.const_get(const).is_a?(Config)
     end
+
+    if $RUBY_CONF.nil? && (name.nil? || name.to_s =~ /^(?:Rails)?Conf/)
+      $RUBY_CONF = if ::Object.const_defined?(:Rails)
+        config[:"#{::Rails.env}", :"#{::Rails.env}_conf", :"#{::Rails.env}_config"].detach
+      else
+        config
+      end
+    end
+
     config
   end
 
@@ -166,4 +178,12 @@ class RubyConf < BasicObject
   def self.method_missing(name, *args) @@__rc_configs[name.to_sym] end
 
   def self.respond_to?(name) @@__rc_configs.key?(name.to_sym) end
+
+  def self.clear()
+    $RUBY_CONF = nil
+    @@__rc_configs.keys.each do |config|
+      remove_const(config.to_sym) if config.to_s[/^[A-Z]/] && const_defined?(config.to_sym)
+    end
+    @@__rc_configs.clear
+  end
 end

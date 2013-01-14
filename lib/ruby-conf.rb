@@ -31,7 +31,7 @@ module RubyConf
         if @@conf.nil?
           Find.find('.') do |path|
             next unless @@conf.nil? && path =~ /\.(?:rb|config|conf)$/
-            if path =~ /\.ruby-conf$/ || File.read(path) =~ /^\s*\#\s*\:\s*ruby-conf\s*$/mi
+            if path =~ /\.(?:rbc|rbcnf|rbconf|rbconfig|rubyconf|rubyconfig|ruby-conf|ruby-config)$/ || File.read(path) =~ /^\s*\#\s*\:\s*ruby-conf\s*$/mi
               break if __rc_load(path)
             end
           end

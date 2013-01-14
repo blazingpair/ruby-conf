@@ -8,6 +8,8 @@ require 'digest/md5'
 module RubyConf
 
   class Loader < BasicObject
+    EXTENTIONS = %w{rbc rbcnf rbconf rbconfig rubyconf rubyconfig ruby-conf ruby-config}
+
     @@conf = @@path = @@mtime = @@md5 = nil
 
     class << self
@@ -30,8 +32,8 @@ module RubyConf
 
         if @@conf.nil?
           Find.find('.') do |path|
-            next unless @@conf.nil? && path =~ /\.(?:rb|config|conf)$/
-            if path =~ /\.(?:rbc|rbcnf|rbconf|rbconfig|rubyconf|rubyconfig|ruby-conf|ruby-config)$/ || File.read(path) =~ /^\s*\#\s*\:\s*ruby-conf\s*$/mi
+            next unless @@conf.nil? && path =~ /\.(?:rb|config|conf|#{EXTENTIONS.join('|')})$/
+            if path =~ /\.(?:#{EXTENTIONS.join('|')})$/ || File.read(path) =~ /^\s*\#\s*\:\s*ruby-conf\s*$/mi
               break if __rc_load(path)
             end
           end

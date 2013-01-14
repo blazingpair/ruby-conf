@@ -195,8 +195,10 @@ TEXT
       let(:inherited_config) do 
         RubyConf.define "inherited_config" do
           basic do
+            movie "b"
             thing do
               origin "swamp"
+              type "monster"
             end
           end
 
@@ -209,13 +211,24 @@ TEXT
           city :inherits => basic do
             thing do
               origin "ocean"
+              name "bob"
             end
           end
 
+          chained :inherits => city do
+            thing do
+              origin "space"
+            end
+          end
         end
       end
       it "pre-loads a config with a existing config" do
         inherited_config.laboritory.thing.origin.should == inherited_config.basic.thing.origin
+      end
+      it "chains inherited configs" do
+        inherited_config.chained.movie.should == "b"
+        inherited_config.chained.thing.origin.should == "space"
+        inherited_config.chained.thing.name.should == "bob"
       end
       it "does not overwrite values" do
         inherited_config.city.thing.origin.should == "ocean"

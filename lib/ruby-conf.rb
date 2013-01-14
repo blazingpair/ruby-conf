@@ -2,15 +2,47 @@
 #
 # @author Hollin Wilkins & Curtis Schofield & Mason Bo-bay-son
 
-$RUBY_CONF = nil
+require 'find'
+require 'digest/md5'
 
-module Magic
-  attr_accessor :__rc_chain
-  def __rc_gather() "#{to_s}#{__rc_chain.nil? ? "" : " #{__rc_chain.__rc_gather}"}" end
-end
+module RubyConf
 
-class RubyConf < BasicObject
-  @@__rc_configs = {}
+  class Loader < BasicObject
+    @@conf = @@path = @@mtime = @@md5 = nil
+
+    class << self
+      def nil?() @@conf.nil? end
+      def __rc_loaded_conf() { path:@@path, mtime:@@mtime, md5:@@md5 } end
+      def __rc_conf() @@conf end
+      def __rc_set_conf(conf = nil) @@conf, @@path, @@mtime, @@md5 = conf, nil, nil, nil end
+      def __rc_load(path)
+        __rc_set_conf
+        @@path, @@mtime, @@md5 = path, File.mtime(path).to_i, Digest::MD5.hexdigest(File.read(path)) if load(path) && @@conf
+      end
+      def method_missing(name, *args, &block)
+        if @@mtime && @@mtime != File.mtime(@@path).to_i && @@md5 != Digest::MD5.hexdigest(File.read(@@path))
+          __rc_load(@@path)
+        end
+
+        if @@conf.nil?
+          Find.find('.') do |path|
+            next unless @@conf.nil? && path =~ /\.(?:rb|config|conf)$/
+            if path =~ /\.ruby-conf$/ || File.read(path) =~ /^\s*\#\s*\:\s*ruby-conf\s*$/mi
+              break if __rc_load(path)
+            end
+          end
+        end
+        @@conf.__send__(name, *args, &block)
+      end
+      def to_s() @@conf.to_s end
+      def inspect() @@conf.inspect end
+    end
+  end
+
+  module Magic
+    attr_accessor :__rc_chain
+    def __rc_gather() "#{to_s}#{__rc_chain.nil? ? "" : " #{__rc_chain.__rc_gather}"}" end
+  end
 
   class Config
     attr_reader :__rc_attributes, :__rc_parent, :__rc_name, :__rc_chains, :__rc_locked
@@ -152,39 +184,44 @@ class RubyConf < BasicObject
     def inspect() __rc_build_inspect end
   end
 
-  def self.define(name = nil, options = {}, &block)
-    config = Config.new(name, &block)
-    @@__rc_configs[name.to_sym] = config unless name.nil?
-
-    const = options.fetch(:as, name)
-    if const && const.to_s[/^[A-Z]/]
-      const = const.to_sym
-      ::Object.const_set(const, config) if !::Object.const_defined?(const) || ::Object.const_get(const).is_a?(Config)
+  @@__rc_configs = {}
+  class << self
+    def clear()
+      Loader::__rc_set_conf
+      @@__rc_configs.clear
     end
 
-    if $RUBY_CONF.nil? && (name.nil? || name.to_s =~ /^(?:Rails)?Conf/)
-      $RUBY_CONF = if ::Object.const_defined?(:Rails)
-        cfg = config[:"#{::Rails.env}"] || config[:"#{::Rails.env}_conf"] || config[:"#{::Rails.env}_config"]
-        cfg && cfg.detach || config
-      else
-        config
+    def [](name) @@__rc_configs[name.to_sym] end
+    def method_missing(name, *args) @@__rc_configs[name.to_sym] end
+    def respond_to?(name) @@__rc_configs.key?(name.to_sym) end
+
+    def define(name = nil, options = {}, &block)
+      config = Config.new(name, &block)
+      @@__rc_configs[name.to_sym] = config unless name.nil?
+
+      const = options.fetch(:as, name)
+      if const && const.to_s[/^[A-Z]/]
+        const = const.to_sym
+        ::Object.const_set(const, config) if !::Object.const_defined?(const) || ::Object.const_get(const).is_a?(Config)
       end
-    end
 
-    config
+      if Loader::__rc_conf.nil? && (name.nil? || name.to_s =~ /^(?:Rails)?Conf/)
+        default_conf = if ::Object.const_defined?(:Rails)
+          cfg = config[:"#{::Rails.env}"] || config[:"#{::Rails.env}_conf"] || config[:"#{::Rails.env}_config"]
+          cfg && cfg.detach || config
+        else
+          config
+        end
+        Loader::__rc_set_conf(default_conf)
+      end
+
+      config
+    end
   end
 
-  def self.[](name) @@__rc_configs[name.to_sym] end
-
-  def self.method_missing(name, *args) @@__rc_configs[name.to_sym] end
-
-  def self.respond_to?(name) @@__rc_configs.key?(name.to_sym) end
-
-  def self.clear()
-    $RUBY_CONF = nil
-    @@__rc_configs.keys.each do |config|
-      remove_const(config.to_sym) if config.to_s[/^[A-Z]/] && const_defined?(config.to_sym)
-    end
-    @@__rc_configs.clear
-  end
 end
+
+RUBY_CONF = RubyConf::Loader
+
+
+

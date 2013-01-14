@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "ruby-conf"
-  s.version = "2.4.0"
+  s.version = "2.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Curtis Schofield & Hollin Wilkins & Mason"]
@@ -28,7 +28,10 @@ Gem::Specification.new do |s|
     "VERSION",
     "lib/ruby-conf.rb",
     "ruby-conf.gemspec",
+    "spec/lib/a_not_conf.rb",
     "spec/lib/ruby-conf_spec.rb",
+    "spec/lib/test_conf.rb.tmpl",
+    "spec/lib/z_not_loaded.rb",
     "spec/spec_helper.rb"
   ]
   s.homepage = "http://github.com/blazingpair/ruby-conf"

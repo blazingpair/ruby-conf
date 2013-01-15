@@ -17,7 +17,6 @@ module RubyConf
     @@conf = @@path = @@mtime = @@md5 = nil
 
     class << self
-      def nil?() @@conf.nil? end
       def __rc_loaded_conf() { path:@@path, mtime:@@mtime, md5:@@md5 } end
       def __rc_conf() @@conf end
       def __rc_set_conf(conf = nil) @@conf, @@path, @@mtime, @@md5 = conf, nil, nil, nil end
@@ -28,12 +27,14 @@ module RubyConf
           RubyConf.out "[ruby-conf] Auto-Loaded config at path: #{path}"
         end
       end
-      def method_missing(name, *args, &block)
+      def __rc_reload
         if @@mtime && @@mtime != File.mtime(@@path).to_i && @@md5 != Digest::MD5.hexdigest(File.read(@@path))
           RubyConf.err "[ruby-conf] Detected change in config file, reloading..."
           __rc_load(@@path)
         end
-
+      end
+      def method_missing(name, *args, &block)
+        __rc_reload
         if @@conf.nil?
           Find.find('.') do |path|
             next unless @@conf.nil? && path =~ /\.(?:rb|config|conf|#{EXTENTIONS.join('|')})$/
@@ -44,9 +45,22 @@ module RubyConf
         end
         @@conf.__send__(name, *args, &block)
       end
-      def to_s() @@conf.to_s end
-      def to_str() @@conf.to_str end
-      def inspect() @@conf.inspect end
+      def to_s()
+        __rc_reload
+        @@conf.to_s
+      end
+      def to_str()
+        __rc_reload
+        @@conf.to_str
+      end
+      def inspect()
+        __rc_reload
+        @@conf.inspect
+      end
+      def nil?()
+        __rc_reload
+        @@conf.nil?
+      end
     end
   end
 

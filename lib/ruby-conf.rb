@@ -73,7 +73,13 @@ module RubyConf
     attr_reader :__rc_attributes, :__rc_parent, :__rc_name, :__rc_chains, :__rc_locked
 
     def __rc_root() __rc_parent ? __rc_parent.__rc_root : self end
-    def detach() @__rc_parent = nil; self end
+    def detach(parent = nil)
+      @__rc_parent = parent
+      @__rc_attributes.values.each do |child|
+        child.detach(self) if child.is_a?(Config)
+      end
+      self
+    end
 
     def initialize(name = nil, parent = nil, &block)
       @__rc_locked, @__rc_attributes, @__rc_chains, @__rc_parent = false, {}, [], parent
@@ -268,7 +274,7 @@ module RubyConf
       if Loader::__rc_conf.nil? && (name.nil? || name.to_s =~ /^(?:Rails)?Conf/)
         default_conf = if ::Object.const_defined?(:Rails)
           cfg = config[:"#{::Rails.env}"] || config[:"#{::Rails.env}_conf"] || config[:"#{::Rails.env}_config"]
-          cfg && cfg.detach || config
+          (cfg && cfg.detach) || config
         else
           config
         end

@@ -61,17 +61,24 @@ var_args: var|[nil]
             end
           end
         end
-        other do
+        inherit do
           val "val"
+          ival ->{ self.val }
+        end
+
+        other(inherits:inherit) do
           inner do
             value "correct"
           end
           self_refa ->{ self.inner.value }
-          self_refb ->{ self.val }
+          self_refb ->{ self.ival }
         end
       end
 
       other = RootTest.other.detach
+      other.val.should == "val"
+      other.ival.should == "val"
+
       other.inner.value.should == "correct"
       other.self_refa.should == "correct"
       other.self_refb.should == "val"
@@ -481,6 +488,7 @@ TEXT
         bar { ident "wrong" }
       end
       RUBY_CONF.ident.should == "correct"
+      RUBY_CONF.__rc_parent.should be_nil
 
       RubyConf.clear
       RUBY_CONF.should be_nil

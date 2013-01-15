@@ -89,10 +89,22 @@ module RubyConf
     end
 
     def [](name, *args)
-      value = @__rc_attributes[name.to_sym]
+      name = name.to_sym
+      value = @__rc_attributes[name]
       if value.is_a?(Proc)
         args += [nil] * (value.arity.abs - args.size) if value.arity.abs > args.size
-        __rc_root.instance_exec(*args, &value)
+        @@stack ||= []
+        if @@stack.include?(name)
+          RubyConf.err("[ruby-conf] Detected recursive proc: #{name}")
+          "[RECURSIVE]"
+        else
+          @@stack << name
+          begin
+            __rc_root.instance_exec(*args, &value)
+          ensure
+            @@stack.delete(name)
+          end
+        end
       else
         value
       end
@@ -217,7 +229,7 @@ module RubyConf
           "[UNRESOLVED:#{e}]"
         end
         str += "#{key}: "
-        str += value.is_a?(Config) ? (value == self ? "[SELF]" : "{ #{value.__rc_build_inspect} }") : value.inspect
+        str += value.is_a?(RubyConf::Config) ? (value == self ? "[SELF]" : "{ #{value.__rc_build_inspect} }") : value.inspect
         str
       }.join(", ")
       istr

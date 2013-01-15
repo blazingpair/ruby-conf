@@ -1,5 +1,9 @@
 require 'spec_helper'
 
+module RubyConf
+  def self.puts(*args) end
+end
+
 describe RubyConf do
 
   before do
@@ -57,7 +61,20 @@ var_args: var|[nil]
             end
           end
         end
+        other do
+          val "val"
+          inner do
+            value "correct"
+          end
+          self_refa ->{ self.inner.value }
+          self_refb ->{ self.val }
+        end
       end
+
+      other = RootTest.other.detach
+      other.inner.value.should == "correct"
+      other.self_refa.should == "correct"
+      other.self_refb.should == "val"
 
       RootTest.outer.middle.inner.val.should == "value"
 
@@ -110,10 +127,12 @@ var_args: var|[nil]
     it "does it's best to print procs but will fail gracefully" do
       RubyConf.define :ProcStrings do
         valid ->{ "valid return" }
-        valid_args ->(a, b, c){ "all empty > a:#{a} b:#{b} c:#{c}" }
+        valid_args ->(a, b, c){ "all empty > a:#{a} b:#{b} c:#{c} <" }
         broken ->{ raise "oops" }
-        broken_args ->(a, b, c){ raise "oops: a:#{a} b:#{b} c:#{c}" }
+        broken_args ->(a, b, c){ raise "oops: a:#{a} b:#{b} c:#{c} <" }
         self_referential ->{self}
+        recursive_to_s ->{self.to_s.split("\n").join(" ")}
+        recursive_inspect ->{self.inspect}
       end
 
       tos = <<-STR
@@ -121,14 +140,16 @@ var_args: var|[nil]
 
 broken: [UNRESOLVED]
 broken_args: [UNRESOLVED]
+recursive_inspect: [ProcStrings] broken: "[UNRESOLVED:oops]", broken_args: "[UNRESOLVED:oops: a: b: c: <]", recursive_inspect: "[RECURSIVE]", recursive_to_s: "[ProcStrings]  broken: [UNRESOLVED] broken_args: [UNRESOLVED] recursive_inspect: [RECURSIVE] recursive_to_s: [RECURSIVE] self_referential: [SELF] valid: valid return valid_args: all empty > a: b: c: <", self_referential: [SELF], valid: "valid return", valid_args: "all empty > a: b: c: <"
+recursive_to_s: [ProcStrings]  broken: [UNRESOLVED] broken_args: [UNRESOLVED] recursive_inspect: [ProcStrings] broken: "[UNRESOLVED:oops]", broken_args: "[UNRESOLVED:oops: a: b: c: <]", recursive_inspect: "[RECURSIVE]", recursive_to_s: "[RECURSIVE]", self_referential: [SELF], valid: "valid return", valid_args: "all empty > a: b: c: <" recursive_to_s: [RECURSIVE] self_referential: [SELF] valid: valid return valid_args: all empty > a: b: c: <
 self_referential: [SELF]
 valid: valid return
-valid_args: all empty > a: b: c:
+valid_args: all empty > a: b: c: <
       STR
 
       ProcStrings.to_s.should == tos
       ProcStrings.to_str.should == tos
-      ProcStrings.inspect.should == '[ProcStrings] broken: "[UNRESOLVED:oops]", broken_args: "[UNRESOLVED:oops: a: b: c:]", self_referential: [SELF], valid: "valid return", valid_args: "all empty > a: b: c:"'
+      ProcStrings.inspect.should == "[ProcStrings] broken: \"[UNRESOLVED:oops]\", broken_args: \"[UNRESOLVED:oops: a: b: c: <]\", recursive_inspect: \"[ProcStrings] broken: \\\"[UNRESOLVED:oops]\\\", broken_args: \\\"[UNRESOLVED:oops: a: b: c: <]\\\", recursive_inspect: \\\"[RECURSIVE]\\\", recursive_to_s: \\\"[ProcStrings]  broken: [UNRESOLVED] broken_args: [UNRESOLVED] recursive_inspect: [RECURSIVE] recursive_to_s: [RECURSIVE] self_referential: [SELF] valid: valid return valid_args: all empty > a: b: c: <\\\", self_referential: [SELF], valid: \\\"valid return\\\", valid_args: \\\"all empty > a: b: c: <\\\"\", recursive_to_s: \"[ProcStrings]  broken: [UNRESOLVED] broken_args: [UNRESOLVED] recursive_inspect: [ProcStrings] broken: \\\"[UNRESOLVED:oops]\\\", broken_args: \\\"[UNRESOLVED:oops: a: b: c: <]\\\", recursive_inspect: \\\"[RECURSIVE]\\\", recursive_to_s: \\\"[RECURSIVE]\\\", self_referential: [SELF], valid: \\\"valid return\\\", valid_args: \\\"all empty > a: b: c: <\\\" recursive_to_s: [RECURSIVE] self_referential: [SELF] valid: valid return valid_args: all empty > a: b: c: <\", self_referential: [SELF], valid: \"valid return\", valid_args: \"all empty > a: b: c: <\""
     end
 
     it "prints out the config in a human readable way" do
@@ -409,9 +430,6 @@ TEXT
     end
 
     it "will autoload the first ruby-conf that it can find if none is provided" do
-      module RubyConf
-        def self.puts(*args) end
-      end
 
       dir = Dir["./**/test_conf.rb.tmpl"].first[/^(.*?)\/test_conf.rb.tmpl$/, 1]
 

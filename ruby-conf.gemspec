@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ruby-conf"
-  s.version = "2.5.3"
+  s.version = "2.6.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Curtis Schofield & Hollin Wilkins & Mason"]
-  s.date = "2013-01-14"
+  s.date = "2013-01-15"
   s.description = "rubyconf is a ruby configuration dsl that aims to make it simple to write and read configurations for ruby apps without a yaml or xml file"
   s.email = "blazingpair@blazingcloud.net"
   s.extra_rdoc_files = [

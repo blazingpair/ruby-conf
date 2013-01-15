@@ -7,6 +7,10 @@ require 'digest/md5'
 
 module RubyConf
 
+  def self.puts(logger = $stdout, *obj) logger.puts(*obj) if logger.respond_to?(:puts) end
+  def self.err(*objs) self.puts($stderr, *objs) end
+  def self.out(*objs) self.puts($stdout, *objs) end
+
   class Loader < BasicObject
     EXTENTIONS = %w{rbc rbcnf rbconf rbconfig rubyconf rubyconfig ruby-conf ruby-config}
 
@@ -21,12 +25,12 @@ module RubyConf
         __rc_set_conf
         if load(path) && @@conf
           @@path, @@mtime, @@md5 = path, File.mtime(path).to_i, Digest::MD5.hexdigest(File.read(path))
-          puts "[ruby-conf] Auto-Loaded config at path: #{path}"
+          RubyConf.out "[ruby-conf] Auto-Loaded config at path: #{path}"
         end
       end
       def method_missing(name, *args, &block)
         if @@mtime && @@mtime != File.mtime(@@path).to_i && @@md5 != Digest::MD5.hexdigest(File.read(@@path))
-          puts "[ruby-conf] Detected change in config file, reloading..."
+          RubyConf.err "[ruby-conf] Detected change in config file, reloading..."
           __rc_load(@@path)
         end
 
@@ -41,6 +45,7 @@ module RubyConf
         @@conf.__send__(name, *args, &block)
       end
       def to_s() @@conf.to_s end
+      def to_str() @@conf.to_str end
       def inspect() @@conf.inspect end
     end
   end
@@ -175,18 +180,38 @@ module RubyConf
       str += "[#{@__rc_name || "CONFIG"}]\n" unless @__rc_parent
       str += "\n"
       @__rc_attributes.keys.map{|k| k.to_s }.sort.each do |key|
-        value = self[key]
+        value = begin
+          self[key]
+        rescue => e
+          "[UNRESOLVED]"
+        end
+
         str += "  " * depth
         str += "#{key}:"
         str += value.is_a?(Config) ? value.__rc_build_string(depth+1) : " #{value}\n"
-        str += "\n" unless depth > 0
+#        str += "\n" unless depth > 0
       end
       str
     end
+    def __rc_build_inspect()
+      istr = ""
+      istr += "[#{@__rc_name || "CONFIG"}] " unless @__rc_parent
+      istr += @__rc_attributes.keys.map{|k| k.to_s }.sort.map{ |key|
+        str = ""
+        value = begin
+          self[key]
+        rescue => e
+          "[UNRESOLVED:#{e}]"
+        end
+        str += "#{key}: "
+        str += value.is_a?(Config) ? "{ #{value.__rc_build_inspect} }" : value.inspect
+        str
+      }.join(", ")
+      istr
+    end
+
     def to_s() __rc_build_string end
     def to_str() to_s end
-
-    def __rc_build_inspect() "#{"[#{@__rc_name || "CONFIG"}] " unless @__rc_parent}#{@__rc_attributes.keys.map {|k| k.to_s }.sort.map { |key| "#{key}: #{self[key].is_a?(Config) ? "{ #{self[key].__rc_build_inspect} }" : self[key].inspect}" }.join(", ")}" end
     def inspect() __rc_build_inspect end
   end
 
@@ -196,6 +221,10 @@ module RubyConf
       Loader::__rc_set_conf
       @@__rc_configs.clear
     end
+
+    def to_s() @@__rc_configs.to_s end
+    def to_str() @@__rc_configs.to_str end
+    def inspect() @@__rc_configs.inspect end
 
     def [](name) @@__rc_configs[name.to_sym] end
     def method_missing(name, *args) @@__rc_configs[name.to_sym] end

@@ -34,7 +34,15 @@ describe RubyConf do
         multi_var_args ->(one,*two,three) { "multivar|#{one.inspect}|#{two.inspect}|#{three.inspect}" }
       end
 
-      LambdaToString.to_s.should == "[LambdaToString]\n\nmulti_args: multi|nil|nil\n\nmulti_var_args: multivar|nil|[nil]|nil\n\nno_args: none\n\none_arg: one|nil\n\nvar_args: var|[nil]\n\n"
+      LambdaToString.to_s.should == <<-TOS
+[LambdaToString]
+
+multi_args: multi|nil|nil
+multi_var_args: multivar|nil|[nil]|nil
+no_args: none
+one_arg: one|nil
+var_args: var|[nil]
+      TOS
     end
   end
 
@@ -98,6 +106,29 @@ describe RubyConf do
   end
 
   describe ".to_s" do
+
+    it "does it's best to print procs but will fail gracefully" do
+      RubyConf.define :ProcStrings do
+        valid ->{ "valid return" }
+        valid_args ->(a, b, c){ "all empty > a:#{a} b:#{b} c:#{c}" }
+        broken ->{ raise "oops" }
+        broken_args ->(a, b, c){ raise "oops: a:#{a} b:#{b} c:#{c}" }
+      end
+
+      tos = <<-STR
+[ProcStrings]
+
+broken: [UNRESOLVED]
+broken_args: [UNRESOLVED]
+valid: valid return
+valid_args: all empty > a: b: c:
+      STR
+
+      ProcStrings.to_s.should == tos
+      ProcStrings.to_str.should == tos
+      ProcStrings.inspect.should == '[ProcStrings] broken: "[UNRESOLVED:oops]", broken_args: "[UNRESOLVED:oops: a: b: c:]", valid: "valid return", valid_args: "all empty > a: b: c:"'
+    end
+
     it "prints out the config in a human readable way" do
       RubyConf.define("some shapes", :as => :Shapes) {
         defaults { position { px 10; py 20 }; size { width 100; height 200 }; rotation lambda { '90 degrees' } }
@@ -127,14 +158,12 @@ circle:
   size:
     height: 200
     width: 100
-
 dafuq:
   holy: fuck this is some god damn evil fucking black sorcery
   how: the hell did he make this happen
   mason: is some kind of sorcerer
   srsly: dude
   this: is freaking me out man
-
 defaults:
   position:
     px: 10
@@ -143,11 +172,9 @@ defaults:
   size:
     height: 200
     width: 100
-
 other:
   color: blue like the color of the sea before a storm
   sides: 4
-
 polygon:
   details:
     actual_sides: 100
@@ -155,7 +182,6 @@ polygon:
       seems: like a lot of damn sides
     named: somename
   sides: many
-
 square:
   named: rectangle
   position:
@@ -165,7 +191,6 @@ square:
   size:
     height: 200
     width: 50
-
 triangle:
   named: rectangle
   position:
@@ -175,7 +200,6 @@ triangle:
   size:
     height: 200
     width: 5
-
 TEXT
     end
 
@@ -383,6 +407,10 @@ TEXT
     end
 
     it "will autoload the first ruby-conf that it can find if none is provided" do
+      module RubyConf
+        def self.puts(*args) end
+      end
+
       dir = Dir["./**/test_conf.rb.tmpl"].first[/^(.*?)\/test_conf.rb.tmpl$/, 1]
 
       val = Random.rand.to_s

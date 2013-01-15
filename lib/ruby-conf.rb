@@ -188,8 +188,7 @@ module RubyConf
 
         str += "  " * depth
         str += "#{key}:"
-        str += value.is_a?(Config) ? value.__rc_build_string(depth+1) : " #{value}\n"
-#        str += "\n" unless depth > 0
+        str += value.is_a?(Config) ? (value == self ? " [SELF]\n" : value.__rc_build_string(depth+1)) : " #{value}\n"
       end
       str
     end
@@ -204,7 +203,7 @@ module RubyConf
           "[UNRESOLVED:#{e}]"
         end
         str += "#{key}: "
-        str += value.is_a?(Config) ? "{ #{value.__rc_build_inspect} }" : value.inspect
+        str += value.is_a?(Config) ? (value == self ? "[SELF]" : "{ #{value.__rc_build_inspect} }") : value.inspect
         str
       }.join(", ")
       istr

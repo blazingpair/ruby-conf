@@ -113,6 +113,7 @@ var_args: var|[nil]
         valid_args ->(a, b, c){ "all empty > a:#{a} b:#{b} c:#{c}" }
         broken ->{ raise "oops" }
         broken_args ->(a, b, c){ raise "oops: a:#{a} b:#{b} c:#{c}" }
+        self_referential ->{self}
       end
 
       tos = <<-STR
@@ -120,13 +121,14 @@ var_args: var|[nil]
 
 broken: [UNRESOLVED]
 broken_args: [UNRESOLVED]
+self_referential: [SELF]
 valid: valid return
 valid_args: all empty > a: b: c:
       STR
 
       ProcStrings.to_s.should == tos
       ProcStrings.to_str.should == tos
-      ProcStrings.inspect.should == '[ProcStrings] broken: "[UNRESOLVED:oops]", broken_args: "[UNRESOLVED:oops: a: b: c:]", valid: "valid return", valid_args: "all empty > a: b: c:"'
+      ProcStrings.inspect.should == '[ProcStrings] broken: "[UNRESOLVED:oops]", broken_args: "[UNRESOLVED:oops: a: b: c:]", self_referential: [SELF], valid: "valid return", valid_args: "all empty > a: b: c:"'
     end
 
     it "prints out the config in a human readable way" do

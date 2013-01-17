@@ -12,7 +12,7 @@ module RubyConf
   def self.out(*objs) self.puts($stdout, *objs) end
 
   class Loader < BasicObject
-    EXTENTIONS = %w{\\.rc \\.rbc \\.rb \\.config \\.conf \\.rbcnf \\.rconf rbconf rbconfig rubyconf rubyconfig ruby-conf ruby-config}
+    EXTENTIONS = %w{rc rb config conf rbcnf rbconf rbconfig rubyconf rubyconfig ruby-conf ruby-config}
 
     @@conf = @@path = @@mtime = @@md5 = nil
 
@@ -33,16 +33,19 @@ module RubyConf
           __rc_load(@@path)
         end
       end
-      def method_missing(name, *args, &block)
-        __rc_reload
-        if @@conf.nil?
-          Find.find('.') do |path|
-            next unless @@conf.nil? && path =~ /(?:#{EXTENTIONS.join('|')})$/
-            if !!(path =~ /(?:#{EXTENTIONS.join('|')})$/) && !!(File.read(path) =~ /^\s*\#\s*\:\s*ruby-conf\s*(?::.*)?$/mi)
-              break if __rc_load(path)
-            end
+      def __rc_autoload
+        Find.find('.') do |path|
+          next unless @@conf.nil? && path =~ /(?:^|\.)(?:#{EXTENTIONS.join('|')})$/
+          if (path =~ /(?:^|\.)(?:#{EXTENTIONS.join('|')})$/) && (File.read(path) =~ /^\s*\#\s*[%:=>&!;-]\s*ruby-conf\s*(?::(.*))?$/mi)
+            options = $1
+            RubyConf.err "Don't know what to do with options yet, you can have these back: #{options}" if options
+            break if __rc_load(path)
           end
         end
+      end
+      def method_missing(name, *args, &block)
+        __rc_reload
+        __rc_autoload if @@conf.nil?
         @@conf.__send__(name, *args, &block)
       end
       def to_s()

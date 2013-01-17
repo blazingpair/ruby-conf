@@ -433,7 +433,7 @@ TEXT
 
     after do
       dir = Dir["./**/test_conf.rb.tmpl"].first[/^(.*?)\/test_conf.rb.tmpl$/, 1]
-      File.delete("#{dir}/test_conf.rbc") if File.exists?("#{dir}/test_conf.rbc")
+      File.delete("#{dir}/test_conf.rc") if File.exists?("#{dir}/test_conf.rc")
     end
 
     it "will autoload the first ruby-conf that it can find if none is provided" do
@@ -441,7 +441,7 @@ TEXT
       dir = Dir["./**/test_conf.rb.tmpl"].first[/^(.*?)\/test_conf.rb.tmpl$/, 1]
 
       val = Random.rand.to_s
-      File.write("#{dir}/test_conf.rbc", File.read("#{dir}/test_conf.rb.tmpl").gsub('{{VALUE}}', val))
+      File.write("#{dir}/test_conf.rc", File.read("#{dir}/test_conf.rb.tmpl").gsub('{{VALUE}}', val))
 
       RUBY_CONF.should be_nil
       RUBY_CONF.ident.should == "FOUND AND LOADED BASIC CONFIG #{val}"
@@ -453,7 +453,7 @@ TEXT
       RUBY_CONF.__rc_loaded_conf[:mtime].should == loaded[:mtime]
 
       val = Random.rand.to_s
-      File.write("#{dir}/test_conf.rbc", File.read("#{dir}/test_conf.rb.tmpl").gsub('{{VALUE}}', val))
+      File.write("#{dir}/test_conf.rc", File.read("#{dir}/test_conf.rb.tmpl").gsub('{{VALUE}}', val))
       FileUtils.touch(loaded[:path], mtime: 100)
       RUBY_CONF.ident.should == "FOUND AND LOADED BASIC CONFIG #{val}"
       RUBY_CONF.__rc_loaded_conf[:mtime].should_not == loaded[:mtime]

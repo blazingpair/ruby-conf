@@ -12,7 +12,7 @@ module RubyConf
   def self.out(*objs) self.puts($stdout, *objs) end
 
   class Loader < BasicObject
-    EXTENTIONS = %w{rbc rbcnf rbconf rbconfig rubyconf rubyconfig ruby-conf ruby-config}
+    EXTENTIONS = %w{\\.rbc \\.rbcnf \\.rconf rbconf rbconfig rubyconf rubyconfig ruby-conf ruby-config}
 
     @@conf = @@path = @@mtime = @@md5 = nil
 
@@ -37,8 +37,8 @@ module RubyConf
         __rc_reload
         if @@conf.nil?
           Find.find('.') do |path|
-            next unless @@conf.nil? && path =~ /\.(?:rb|config|conf|#{EXTENTIONS.join('|')})$/
-            if path =~ /\.(?:#{EXTENTIONS.join('|')})$/ || File.read(path) =~ /^\s*\#\s*\:\s*ruby-conf\s*$/mi
+            next unless @@conf.nil? && path =~ /(?:\.rb|\.config|\.conf|#{EXTENTIONS.join('|')})$/
+            if path =~ /(?:#{EXTENTIONS.join('|')})$/ || File.read(path) =~ /^\s*\#\s*\:\s*ruby-conf\s*$/mi
               break if __rc_load(path)
             end
           end
@@ -288,6 +288,6 @@ module RubyConf
 end
 
 RUBY_CONF = RubyConf::Loader
-
+RUBYCONF = RUBY_CONF
 
 

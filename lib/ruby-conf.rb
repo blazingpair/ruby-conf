@@ -200,8 +200,9 @@ module RubyConf
         if args.empty?
           modifier == '?' ? !!self[name] : self[name]
         else
-          args = args.size == 1 ? args.first : args
-          (@__rc_locked && __rc_attributes[name.to_sym].is_a?(Proc)) ? self[name, *args] : self[name] = args
+          arg = args.size == 1 ? args.first : args
+
+          (@__rc_locked && __rc_attributes[name.to_sym].is_a?(Proc)) ? self[name, *args] : self[name] = arg
         end
       end
     end

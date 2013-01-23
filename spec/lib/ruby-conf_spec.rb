@@ -13,6 +13,19 @@ describe RubyConf do
   subject { RubyConf }
 
   describe "lambda arguments" do
+    it "handles hash arguments properly" do
+      RubyConf.define :LambdaHashes do
+        key ->(options) {
+          options
+        }
+      end
+
+      LambdaHashes.key(hash: "value").should == {hash: "value"}
+      LambdaHashes.key("non hash").should == "non hash"
+      LambdaHashes.key(["array", "values"]).should == ["array", "values"]
+
+    end
+
     it "accepts arguments for lambdas" do
       RubyConf.define("lambda args", :as => :Hannibal) do
         silence_of_the lambda { |clarise, fava, chianti|

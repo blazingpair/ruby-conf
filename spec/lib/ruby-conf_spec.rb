@@ -16,8 +16,24 @@ describe RubyConf do
 
     it "uses bang to ensure lambdas get called only once" do
       RubyConf.define :Lambang do
+        noargs -> { "#{rand(1000)}" }
         bang ->(a, b) { "#{a}-#{b}-#{rand(1000)}" }
       end
+
+      normal = Lambang.noargs
+      Lambang.noargs!.should == normal
+      Lambang.noargs.should_not == normal
+
+      bang = Lambang.noargs!
+      Lambang.noargs!.should == bang
+
+      #reset it by not using bang
+      Lambang.noargs.should_not == bang
+
+      bang2 = Lambang.noargs!
+      bang2.should_not == bang
+      Lambang.noargs!.should == bang2
+
 
       normal = Lambang.bang(:a, :b)
       Lambang.bang!(:a, :b).should == normal

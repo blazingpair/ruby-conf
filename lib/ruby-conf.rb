@@ -73,7 +73,7 @@ module RubyConf
   end
 
   class Config
-    attr_reader :__rc_attributes, :__rc_parent, :__rc_name, :__rc_chains, :__rc_locked
+    attr_reader :__rc_attributes, :__rc_parent, :__rc_name, :__rc_chains, :__rc_locked, :__rc_static_values
 
     def __rc_root() __rc_parent ? __rc_parent.__rc_root : self end
     def detach(parent = nil)
@@ -85,7 +85,7 @@ module RubyConf
     end
 
     def initialize(name = nil, parent = nil, &block)
-      @__rc_locked, @__rc_attributes, @__rc_chains, @__rc_parent = false, {}, [], parent
+      @__rc_locked, @__rc_attributes, @__rc_chains, @__rc_parent, @__rc_static_values = false, {}, [], parent, {}
       @__rc_name = name.to_sym if name
       instance_eval(&block) if block_given?
       __rc_lock
@@ -95,6 +95,12 @@ module RubyConf
       @__rc_locked = true
       @__rc_attributes.each_value { |value| value.__rc_lock if value.is_a?(Config) }
       self
+    end
+
+    def __rc_static_proc(name, *args)
+      name = name.to_sym
+      static_key = "#{name}:#{args}"
+      @__rc_static_values[static_key] || self[name, *args]
     end
 
     def [](name, *args)
@@ -109,7 +115,10 @@ module RubyConf
         else
           @@stack << name
           begin
-            __rc_root.instance_exec(*args, &value)
+            value = __rc_root.instance_exec(*args, &value)
+            static_key = "#{name}:#{args}"
+            @__rc_static_values[static_key] = value
+            value
           ensure
             @@stack.delete(name)
           end
@@ -198,11 +207,24 @@ module RubyConf
         end
 
         if args.empty?
-          modifier == '?' ? !!self[name] : self[name]
+          if modifier == '?'
+            !!self[name]
+          elsif modifier == '!' && __rc_attributes[name.to_sym].is_a?(Proc)
+            __rc_static_proc(name)
+          else
+            self[name]
+          end
         else
           arg = args.size == 1 ? args.first : args
-
-          (@__rc_locked && __rc_attributes[name.to_sym].is_a?(Proc)) ? self[name, *args] : self[name] = arg
+          if @__rc_locked && __rc_attributes[name.to_sym].is_a?(Proc)
+            if modifier == '!'
+              __rc_static_proc(name, *args)
+            else
+              self[name, *args]
+            end
+          else
+            self[name] = arg
+          end
         end
       end
     end

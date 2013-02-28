@@ -13,6 +13,30 @@ describe RubyConf do
   subject { RubyConf }
 
   describe "lambda arguments" do
+
+    it "uses bang to ensure lambdas get called only once" do
+      RubyConf.define :Lambang do
+        bang ->(a, b) { "#{a}-#{b}-#{rand(1000)}" }
+      end
+
+      normal = Lambang.bang(:a, :b)
+      Lambang.bang!(:a, :b).should == normal
+      Lambang.bang(:a, :b).should_not == normal
+
+      bangcd = Lambang.bang!(:c, :d)
+      bangef = Lambang.bang!(:e, :f)
+      Lambang.bang!(:c, :d).should == bangcd
+      Lambang.bang!(:e, :f).should == bangef
+      Lambang.bang!(:c, :d).should == bangcd
+
+      #reset it by not using bang
+      Lambang.bang(:c, :d).should_not == bangcd
+
+      bangcd2 = Lambang.bang!(:c, :d)
+      bangcd2.should_not == bangcd
+      Lambang.bang!(:c, :d).should == bangcd2
+    end
+
     it "handles hash arguments properly" do
       RubyConf.define :LambdaHashes do
         key ->(options) {

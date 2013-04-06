@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Curtis Schofield & Hollin Wilkins & Mason"]
-  s.date = "2013-01-23"
+  s.date = "2013-02-28"
   s.description = "rubyconf is a ruby configuration dsl that aims to make it simple to write and read configurations for ruby apps without a yaml or xml file"
   s.email = "blazingpair@blazingcloud.net"
   s.extra_rdoc_files = [

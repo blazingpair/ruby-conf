@@ -84,6 +84,10 @@ module RubyConf
       self
     end
 
+    def rckeys
+      @__rc_attributes.keys
+    end
+
     def initialize(name = nil, parent = nil, &block)
       @__rc_locked, @__rc_attributes, @__rc_chains, @__rc_parent, @__rc_static_values = false, {}, [], parent, {}
       @__rc_name = name.to_sym if name
